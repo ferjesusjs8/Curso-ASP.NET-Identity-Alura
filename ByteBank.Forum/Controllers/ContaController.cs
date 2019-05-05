@@ -48,20 +48,52 @@ namespace ByteBank.Forum.Controllers
                 novoUsuario.Email = modelo.Email;
                 novoUsuario.NomeCompleto = modelo.NomeCompleto;
 
-                var usuario = UserManager.FindByEmail(modelo.Email);
+                var usuario = await UserManager.FindByEmailAsync(modelo.Email);
+
+                if (usuario != null)
+                    return View("AguardandoConfirmacao");
 
                 var resultado = await UserManager.CreateAsync(novoUsuario, modelo.Senha);
 
-                if (resultado.Succeeded || usuario != null)
-                    return RedirectToAction("Index", "Home");
+                if (resultado.Succeeded)
+                {
+                    await EnviarEmailConfirmacaoAsync(novoUsuario);
+                    return View("AguardandoConfirmacao");
+                }
                 else
                     AdicionaErros(resultado);
             }
-            else
-            {
 
-            }
             return View(modelo);
+        }
+
+        public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
+        {
+            if (usuarioId == null || token == null)
+                return View("Error");
+
+            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token);
+
+            if (resultado.Succeeded)
+                return RedirectToAction("Index", "Home");
+            else
+                return View("Error");
+        }
+
+        private async Task EnviarEmailConfirmacaoAsync(UsuarioAplicacao usuario)
+        {
+            var token = await UserManager.GenerateEmailConfirmationTokenAsync(usuario.Id);
+
+            var linkCallBack = Url.Action(
+                "ConfirmacaoEmail",
+                "Conta",
+                new { userId = usuario.Id, token = token },
+                Request.Url.Scheme);
+
+            await UserManager.SendEmailAsync(
+                usuario.Id,
+                "Forum ByteBank Fernando JS - Confirmação de Email",
+                $"Olá seja muito bem-vindo ao nosso fórum, por favor clique neste {linkCallBack} para que possamos confirmar o seu cadastro");
         }
 
         private void AdicionaErros(IdentityResult resultado)
