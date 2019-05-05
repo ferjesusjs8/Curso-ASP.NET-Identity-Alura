@@ -67,12 +67,12 @@ namespace ByteBank.Forum.Controllers
             return View(modelo);
         }
 
-        public async Task<ActionResult> ConfirmacaoEmail(string usuarioId, string token)
+        public async Task<ActionResult> ConfirmacaoEmail(string userId, string token)
         {
-            if (usuarioId == null || token == null)
+            if (userId == null || token == null)
                 return View("Error");
 
-            var resultado = await UserManager.ConfirmEmailAsync(usuarioId, token);
+            var resultado = await UserManager.ConfirmEmailAsync(userId, token);
 
             if (resultado.Succeeded)
                 return RedirectToAction("Index", "Home");

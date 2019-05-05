@@ -49,7 +49,7 @@ namespace ByteBank.Forum
                     userManager.EmailService = new EmailService();
 
                     var dataProtectionProvider = opcoes.DataProtectionProvider;
-                    var dataProtectionProviderCreated = dataProtectionProvider.Create("ByteBank.Forum");
+                    var dataProtectionProviderCreated = dataProtectionProvider.Create("ByteBank.Forum.Fernando.JS");
 
                     userManager.UserTokenProvider = new DataProtectorTokenProvider<UsuarioAplicacao>(dataProtectionProviderCreated);
 
